@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Environment variables
+.env
+.env.local
+
+# Output files
+output_data/
+*.xlsx
+
+# Interim data files (keep folder structure, ignore data)
+interim_data/*.csv
+interim_data/*.parquet
+interim_data/*.xlsx
+interim_data/*.pkl
+!interim_data/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db

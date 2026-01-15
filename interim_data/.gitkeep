@@ -1,0 +1,3 @@
+# This folder contains interim/intermediate data files
+# These are temporary data files saved from queries for future reporting use
+# Files are typically saved as CSV or Parquet format
