@@ -76,8 +76,57 @@ pip install -r requirements.txt
 
 See `example_usage.py` for comprehensive examples.
 
+## Reports
+
+### Running Reports
+
+**Unified Runner** (Recommended):
+```bash
+# List all available reports
+python run_report.py
+
+# Run a specific report
+python run_report.py cuso_ram
+```
+
+**Programmatic Usage**:
+```python
+from reports import run_report, list_reports
+
+# List all reports
+print(list_reports())
+
+# Run a report
+report_path = run_report("cuso_ram")
+```
+
+### Available Reports
+
+#### CUSO RAM Report
+
+Risk Appetite Measure report that processes model information from Model Governance team.
+
+- **Query**: `queries/Risk Appetite Measure.sql`
+- **Script**: `reports/cuso_ram_report.py`
+- **Output**: `output_data/cuso_ram/`
+
+**Usage**:
+```python
+from reports.cuso_ram_report import CUSORAMReport
+report = CUSORAMReport()
+report.run()
+```
+
+### Creating New Reports
+
+1. Copy `reports/REPORT_TEMPLATE.py` to `reports/your_report_name_report.py`
+2. Implement the abstract methods: `extract_data()`, `transform_data()`, `calculate_aggregations()`
+3. Register the report in `reports/__init__.py`
+4. Run using: `python run_report.py your_report_name`
+
 ## Notes
 
 - All SQL queries should be stored in the `queries/` folder
 - Interim data files (CSV, Parquet) should be saved in `interim_data/` folder
 - Use Windows Authentication by default (no credentials needed)
+- Reports are stored in `reports/` folder with their own subdirectories
