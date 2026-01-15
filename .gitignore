@@ -32,7 +32,8 @@ logs/
 
 # Output files
 output_data/
-*.xlsx
+output_data/*.xlsx
+!output_data/.gitkeep
 
 # Interim data files (keep folder structure, ignore data)
 interim_data/*.csv

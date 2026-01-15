@@ -31,6 +31,19 @@ df = db.run_query_from_file(Path("queries/uiu_missing_data.sql"))
 # Save result to interim data
 df.to_csv("interim_data/result.csv", index=False)
 
+# Save to Excel using Excel Manager
+from excel_manager import ExcelManager
+
+excel_mgr = ExcelManager()
+excel_mgr.save_dataframe(df, "output_data/report.xlsx", sheet_name="Data")
+
+# Save multiple DataFrames to one Excel file
+dataframes = {
+    "Summary": df_summary,
+    "Detail": df_detail
+}
+excel_mgr.save_multiple_dataframes(dataframes, "output_data/report.xlsx")
+
 # Close connection
 db.close()
 ```
@@ -40,10 +53,13 @@ db.close()
 ```
 MRG_ReportingHUB/
 ├── db_manager.py          # Database manager class
+├── excel_manager.py       # Excel file manager class
 ├── queries/               # SQL query scripts
 │   └── uiu_missing_data.sql
 ├── interim_data/          # Temporary/intermediate data files
-├── example_usage.py       # Usage examples
+├── output_data/           # Output Excel files and reports
+├── example_usage.py       # DB manager usage examples
+├── excel_example.py       # Excel manager usage examples
 └── requirements.txt       # Python dependencies
 ```
 
