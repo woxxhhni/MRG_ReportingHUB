@@ -77,7 +77,9 @@ class CUSORAMReport(BaseReport):
             # Define placeholders for query replacement
             placeholders = {
                 "[DBName].[DBSchema]": "[DMAV_MAVRICK].[MAV2]",
-                "(0=0)": f"M.DataStamp = '{self.data_stamp_date}'"
+                "(0=0)": f"M.DateStamp = '{self.data_stamp_date}'",
+                "(10=10)": f"'{self.data_stamp_date}'",
+                
             }
             
             df_raw = self.db.run_query_from_file(query_file, placeholders=placeholders)
@@ -133,6 +135,36 @@ class CUSORAMReport(BaseReport):
         logger.info(f"Returning {len(df)} rows (aggregation logic to be implemented)")
         return aggregated_data
     
+    def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+        """
+        Generate Excel report from aggregated data.
+        TODO: Implement custom report generation logic.
+        
+        Args:
+            aggregated_data: Dictionary of DataFrames keyed by sheet name
+            filename_prefix: Prefix for filename (default: report_name)
+            
+        Returns:
+            Path to generated Excel file
+        """
+        logger.info("Generating Excel report...")
+        
+        # Passthrough: Create minimal Excel file for now
+        # TODO: Implement custom report generation logic
+        file_path = self._get_output_path(filename_prefix, extension='.xlsx')
+        
+        # Create minimal Excel file to avoid errors
+        # Save first DataFrame (or empty DataFrame if none) as placeholder
+        if aggregated_data:
+            first_key = list(aggregated_data.keys())[0]
+            first_df = aggregated_data[first_key]
+            first_df.to_excel(file_path, index=False, sheet_name=first_key)
+        else:
+            # Create empty Excel file if no data
+            pd.DataFrame().to_excel(file_path, index=False)
+        
+        logger.info(f"Placeholder report generated: {file_path} (TODO: implement custom logic)")
+        return file_path
 
 
 def main():

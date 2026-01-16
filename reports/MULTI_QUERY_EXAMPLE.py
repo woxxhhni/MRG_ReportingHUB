@@ -141,3 +141,29 @@ class MultiQueryReportExample(BaseReport):
         
         logger.info(f"Created {len(aggregated_data)} aggregated datasets")
         return aggregated_data
+    
+    def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+        """
+        Generate Excel report from aggregated data.
+        Multiple DataFrames will be saved as separate sheets.
+        
+        Args:
+            aggregated_data: Dictionary of DataFrames keyed by sheet name
+            filename_prefix: Prefix for filename (default: report_name)
+            
+        Returns:
+            Path to generated Excel file
+        """
+        logger.info("Generating Excel report with multiple sheets...")
+        file_path = self._get_output_path(filename_prefix, extension='.xlsx')
+        
+        excel_path = self.excel_mgr.save_multiple_dataframes(
+            dataframes=aggregated_data,
+            file_path=file_path,
+            index=False,
+            format_header=True,
+            auto_adjust_width=True
+        )
+        
+        logger.info(f"Report generated: {excel_path}")
+        return excel_path

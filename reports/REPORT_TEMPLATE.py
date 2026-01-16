@@ -144,6 +144,71 @@ class YourReportNameReport(BaseReport):
         
         logger.info(f"Created {len(aggregated_data)} aggregated datasets")
         return aggregated_data
+    
+    def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+        """
+        Generate report from aggregated data.
+        Customize this method based on your report's output format requirements.
+        
+        Args:
+            aggregated_data: Dictionary of DataFrames keyed by sheet/table name
+            filename_prefix: Prefix for filename (default: report_name)
+            
+        Returns:
+            Path to generated report file
+            
+        Examples:
+            # Option 1: Standard Excel with multiple sheets (most common)
+            def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+                file_path = self._get_output_path(filename_prefix, extension='.xlsx')
+                return self.excel_mgr.save_multiple_dataframes(
+                    dataframes=aggregated_data,
+                    file_path=file_path,
+                    index=False,
+                    format_header=True,
+                    auto_adjust_width=True
+                )
+            
+            # Option 2: Single CSV file
+            def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+                file_path = self._get_output_path(filename_prefix, extension='.csv')
+                aggregated_data['Detail'].to_csv(file_path, index=False)
+                return file_path
+            
+            # Option 3: Multiple CSV files (one per sheet)
+            def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+                prefix = filename_prefix or self.report_name.replace(" ", "_")
+                for sheet_name, df in aggregated_data.items():
+                    file_path = self._get_output_path(f"{prefix}_{sheet_name}", extension='.csv')
+                    df.to_csv(file_path, index=False)
+                return self.output_dir  # Return directory if multiple files
+            
+            # Option 4: Custom Excel format with specific cell locations
+            def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+                file_path = self._get_output_path(filename_prefix, extension='.xlsx')
+                # Create workbook
+                from openpyxl import Workbook
+                wb = Workbook()
+                ws = wb.active
+                ws.title = "Summary"
+                # Add custom formatting, charts, etc.
+                wb.save(file_path)
+                return file_path
+        """
+        # Default implementation: Excel with multiple sheets
+        logger.info("Generating Excel report...")
+        file_path = self._get_output_path(filename_prefix, extension='.xlsx')
+        
+        excel_path = self.excel_mgr.save_multiple_dataframes(
+            dataframes=aggregated_data,
+            file_path=file_path,
+            index=False,
+            format_header=True,
+            auto_adjust_width=True
+        )
+        
+        logger.info(f"Report generated: {excel_path}")
+        return excel_path
 
 
 # To register this report, add to reports/__init__.py:

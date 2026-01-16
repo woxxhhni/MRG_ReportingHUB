@@ -137,42 +137,100 @@ class BaseReport(ABC):
         timestamp = datetime.now().strftime("%Y%m%d")
         
         csv_path = self.interim_dir / f"{prefix}_data_{timestamp}.csv"
-        parquet_path = self.interim_dir / f"{prefix}_data_{timestamp}.parquet"
         
         df.to_csv(csv_path, index=False)
-        df.to_parquet(parquet_path, index=False)
         
-        logger.info(f"Interim data saved: {csv_path}, {parquet_path}")
+        logger.info(f"Interim data saved: {csv_path}")
     
+    @abstractmethod
     def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
         """
-        Generate Excel report from aggregated data.
+        Generate report from aggregated data.
+        Must be implemented by subclasses to handle report-specific formats.
         
         Args:
-            aggregated_data: Dictionary of DataFrames keyed by sheet name
+            aggregated_data: Dictionary of DataFrames keyed by sheet/table name
             filename_prefix: Prefix for filename (default: report_name)
             
         Returns:
-            Path to generated Excel file
+            Path to generated report file
+            
+        Examples:
+            # Excel report with multiple sheets
+            def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+                file_path = self._get_output_path(filename_prefix, extension='.xlsx')
+                return self.excel_mgr.save_multiple_dataframes(
+                    dataframes=aggregated_data,
+                    file_path=file_path,
+                    index=False
+                )
+            
+            # CSV report (single file)
+            def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+                file_path = self._get_output_path(filename_prefix, extension='.csv')
+                aggregated_data['Detail'].to_csv(file_path, index=False)
+                return file_path
+            
+            # Multiple CSV files
+            def generate_report(self, aggregated_data: dict, filename_prefix: str = None) -> Path:
+                prefix = filename_prefix or self.report_name.replace(" ", "_")
+                for sheet_name, df in aggregated_data.items():
+                    file_path = self._get_output_path(f"{prefix}_{sheet_name}", extension='.csv')
+                    df.to_csv(file_path, index=False)
+                return self.output_dir  # Return directory if multiple files
         """
-        logger.info("Generating Excel report...")
+        pass
+    
+    def _get_output_path(self, filename_prefix: str = None, extension: str = '.xlsx', 
+                         include_timestamp: bool = True) -> Path:
+        """
+        Helper method to generate output file path.
         
+        Args:
+            filename_prefix: Prefix for filename (default: report_name)
+            extension: File extension (default: '.xlsx')
+            include_timestamp: Whether to include timestamp in filename (default: True)
+            
+        Returns:
+            Path object for output file
+        """
         prefix = filename_prefix or self.report_name.replace(" ", "_")
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{prefix}_Report_{timestamp}.xlsx"
-        file_path = self.output_dir / filename
         
-        # Save all DataFrames to Excel with multiple sheets
-        excel_path = self.excel_mgr.save_multiple_dataframes(
-            dataframes=aggregated_data,
-            file_path=file_path,
-            index=False,
-            format_header=True,
-            auto_adjust_width=True
-        )
+        if include_timestamp:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{prefix}_Report_{timestamp}{extension}"
+        else:
+            filename = f"{prefix}_Report{extension}"
         
-        logger.info(f"Report generated: {excel_path}")
-        return excel_path
+        return self.output_dir / filename
+    
+    def _generate_filename(self, prefix: str = None, suffix: str = "", 
+                          extension: str = '.xlsx', include_timestamp: bool = True) -> str:
+        """
+        Helper method to generate filename string.
+        
+        Args:
+            prefix: Filename prefix (default: report_name)
+            suffix: Filename suffix (appended before extension)
+            extension: File extension (default: '.xlsx')
+            include_timestamp: Whether to include timestamp (default: True)
+            
+        Returns:
+            Filename string
+        """
+        prefix = prefix or self.report_name.replace(" ", "_")
+        
+        if include_timestamp:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            if suffix:
+                return f"{prefix}_{suffix}_{timestamp}{extension}"
+            else:
+                return f"{prefix}_{timestamp}{extension}"
+        else:
+            if suffix:
+                return f"{prefix}_{suffix}{extension}"
+            else:
+                return f"{prefix}{extension}"
     
     def _is_multi_query(self, data: Union[pd.DataFrame, Dict]) -> bool:
         """Check if data is from multiple queries (dict) or single query (DataFrame)."""
