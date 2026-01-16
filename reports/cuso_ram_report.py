@@ -114,6 +114,7 @@ class CUSORAMReport(BaseReport):
     def calculate_aggregations(self, df: pd.DataFrame) -> dict:
         """
         Calculate aggregations by model owner and other dimensions.
+        TODO: Implement specific aggregation logic after reviewing query results.
         
         Args:
             df: Cleaned DataFrame
@@ -123,46 +124,13 @@ class CUSORAMReport(BaseReport):
         """
         logger.info("Calculating aggregations...")
         
-        aggregated_data = {}
+        # Passthrough: Return original data for now
+        # TODO: Add aggregation logic after reviewing the query results
+        aggregated_data = {
+            'Detail': df
+        }
         
-        # TODO: Update column names based on actual data structure
-        # Example aggregations:
-        
-        # 1. Summary by Model Owner
-        if 'model_owner' in df.columns:
-            df_by_owner = df.groupby('model_owner').agg({
-                # Add aggregation columns based on your requirements
-                # Example:
-                # 'model_id': 'count',
-                # 'risk_score': ['mean', 'max', 'min'],
-                # 'status': lambda x: x.value_counts().to_dict()
-            }).reset_index()
-            aggregated_data['Summary_by_Owner'] = df_by_owner
-            logger.info(f"Created summary by model owner: {len(df_by_owner)} rows")
-        
-        # 2. Summary by Model Type (if exists)
-        if 'model_type' in df.columns:
-            df_by_type = df.groupby('model_type').agg({
-                # Add aggregation logic
-            }).reset_index()
-            aggregated_data['Summary_by_Type'] = df_by_type
-            logger.info(f"Created summary by model type: {len(df_by_type)} rows")
-        
-        # 3. Overall Summary
-        summary_stats = pd.DataFrame({
-            'Metric': ['Total Models', 'Unique Owners', 'Date Range'],
-            'Value': [
-                len(df),
-                df['model_owner'].nunique() if 'model_owner' in df.columns else 0,
-                f"{df['date'].min()} to {df['date'].max()}" if 'date' in df.columns else 'N/A'
-            ]
-        })
-        aggregated_data['Overall_Summary'] = summary_stats
-        
-        # 4. Detail data (original cleaned data)
-        aggregated_data['Detail'] = df
-        
-        logger.info(f"Created {len(aggregated_data)} aggregated datasets")
+        logger.info(f"Returning {len(df)} rows (aggregation logic to be implemented)")
         return aggregated_data
     
 
