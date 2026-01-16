@@ -220,13 +220,35 @@ class MRGDate:
         
         Args:
             date_string: Date string
-            format_string: Date format string (e.g., '%Y-%m-%d')
+            format_string: Date format string
             
         Returns:
             MRGDate instance
             
-        Example:
+        Examples:
+            # ISO format
             date = MRGDate.from_string('2024-01-15', '%Y-%m-%d')
+            
+            # US format
+            date = MRGDate.from_string('01/15/2024', '%m/%d/%Y')
+            
+            # UK format
+            date = MRGDate.from_string('15/01/2024', '%d/%m/%Y')
+            
+            # Compact format
+            date = MRGDate.from_string('20240115', '%Y%m%d')
+            
+            # With time
+            date = MRGDate.from_string('2024-01-15 14:30:00', '%Y-%m-%d %H:%M:%S')
+            
+            # Common format strings:
+            # '%Y-%m-%d'      -> 2024-01-15
+            # '%Y/%m/%d'      -> 2024/01/15
+            # '%d-%m-%Y'      -> 15-01-2024
+            # '%d/%m/%Y'      -> 15/01/2024
+            # '%m/%d/%Y'      -> 01/15/2024
+            # '%Y%m%d'        -> 20240115
+            # '%Y-%m-%d %H:%M:%S' -> 2024-01-15 14:30:00
         """
         day, month, year = parse_date(date_string, format_string)
         return cls(day, month, year)
@@ -263,7 +285,7 @@ class MRGDate:
             return cls.from_datetime(value)
         elif isinstance(value, str):
             # Try common formats
-            for fmt in ['%Y-%m-%d', '%Y/%m/%d', '%d-%m-%Y', '%d/%m/%Y', '%Y-%m-%d %H:%M:%S']:
+            for fmt in ['%Y-%m-%d', '%Y/%m/%d', '%d-%m-%Y', '%d/%m/%Y', '%Y-%m-%d %H:%M:%S', '%Y%m%d']:
                 try:
                     return cls.from_string(value, fmt)
                 except ValueError:
@@ -690,6 +712,35 @@ class MRGDate:
             
         Returns:
             Formatted date string
+            
+        Examples:
+            date = MRGDate(15, 1, 2024)  # January 15, 2024
+            
+            # ISO format
+            date.to_string('%Y-%m-%d')           # '2024-01-15'
+            
+            # US format
+            date.to_string('%m/%d/%Y')           # '01/15/2024'
+            
+            # UK format
+            date.to_string('%d/%m/%Y')           # '15/01/2024'
+            
+            # Compact format
+            date.to_string('%Y%m%d')             # '20240115'
+            
+            # With time
+            date.to_string('%Y-%m-%d %H:%M:%S')  # '2024-01-15 14:30:00'
+            
+            # Common format strings:
+            # '%Y-%m-%d'      -> 2024-01-15
+            # '%Y/%m/%d'      -> 2024/01/15
+            # '%d-%m-%Y'      -> 15-01-2024
+            # '%d/%m/%Y'      -> 15/01/2024
+            # '%m/%d/%Y'      -> 01/15/2024
+            # '%Y%m%d'        -> 20240115
+            # '%Y-%m-%d %H:%M:%S' -> 2024-01-15 14:30:00
+            # '%d %B %Y'      -> 15 January 2024
+            # '%B %d, %Y'     -> January 15, 2024
         """
         dt = datetime.datetime(self._year, self._month, self._day,
                               self._hour, self._minute, self._second)
