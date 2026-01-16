@@ -1,16 +1,29 @@
-# Core Dependencies
-pandas>=2.0.0
-numpy>=1.24.0
+# ============================================================================
+# MRG Reporting HUB - Python Dependencies
+# ============================================================================
 
-# Database
-pyodbc>=4.0.39
-sqlalchemy>=2.0.0
+# Core Data Processing
+pandas>=2.0.0          # Data manipulation and analysis
+numpy>=1.24.0           # Numerical computing (pandas dependency)
 
-# Excel Operations
-openpyxl>=3.1.0
+# Database Connectivity
+sqlalchemy>=2.0.0       # SQL toolkit and ORM for database access
+pyodbc>=4.0.39          # ODBC driver for SQL Server connections
 
-# Data Storage (for Parquet support)
-pyarrow>=12.0.0
+# Excel File Operations
+openpyxl>=3.1.0         # Read/write Excel (.xlsx) files
 
-# Utilities
-python-dateutil>=2.8.2
+# Data Storage Formats
+pyarrow>=12.0.0         # Parquet file format support (for interim data)
+
+# Date and Time Utilities
+python-dateutil>=2.8.2 # Date parsing and manipulation utilities
+
+# ============================================================================
+# Optional Development Dependencies (uncomment if needed)
+# ============================================================================
+# pytest>=7.4.0         # Testing framework
+# pytest-cov>=4.1.0     # Coverage plugin for pytest
+# black>=23.0.0         # Code formatter
+# flake8>=6.0.0         # Linting tool
+# mypy>=1.5.0           # Static type checking
