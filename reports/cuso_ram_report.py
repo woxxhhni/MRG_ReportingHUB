@@ -21,16 +21,23 @@ class CUSORAMReport(BaseReport):
     CUSO RAM (Risk Appetite Measure) Report Generator
     """
     
-    def __init__(self, data_stamp_date: Optional[Union[str, MRGDate, date]] = None):
+    def __init__(self, 
+                 inventory_date: Optional[Union[str, MRGDate, date]] = None,
+                 compliance_date: Optional[Union[str, MRGDate, date]] = None):
         """
         Initialize CUSO RAM Report.
         
         Args:
-            data_stamp_date: Data stamp date. Can be:
+            inventory_date: Inventory date (replaces (0=0) placeholder). Can be:
                            - MRGDate object
                            - String in format 'YYYY-MM-DD' (e.g., '2025-12-31')
                            - datetime.date object
                            - If None, uses today's date
+            compliance_date: Compliance date (replaces (10=10) placeholder). Can be:
+                            - MRGDate object
+                            - String in format 'YYYY-MM-DD' (e.g., '2025-12-31')
+                            - datetime.date object
+                            - If None, uses same as inventory_date
         """
         super().__init__(
             report_name="CUSO RAM",
@@ -38,23 +45,36 @@ class CUSORAMReport(BaseReport):
             interim_dir="interim_data/cuso_ram"
         )
         
-        # Set data stamp date using MRGDate class
-        if data_stamp_date is None:
+        # Set inventory date using MRGDate class
+        if inventory_date is None:
             # Use today's date
             today = date.today()
-            self.data_stamp_date_obj = MRGDate(today.day, today.month, today.year)
-        elif isinstance(data_stamp_date, MRGDate):
-            self.data_stamp_date_obj = data_stamp_date
-        elif isinstance(data_stamp_date, date):
-            self.data_stamp_date_obj = MRGDate.from_datetime(data_stamp_date)
+            self.inventory_date_obj = MRGDate(today.day, today.month, today.year)
+        elif isinstance(inventory_date, MRGDate):
+            self.inventory_date_obj = inventory_date
+        elif isinstance(inventory_date, date):
+            self.inventory_date_obj = MRGDate.from_datetime(inventory_date)
         else:
             # String - try to parse using MRGDate
-            self.data_stamp_date_obj = MRGDate.from_pandas(data_stamp_date)
+            self.inventory_date_obj = MRGDate.from_pandas(inventory_date)
         
-        # Store as string in YYYY-MM-DD format for SQL query
-        self.data_stamp_date = self.data_stamp_date_obj.to_string('%Y-%m-%d')
+        # Set compliance date (default to inventory date if not provided)
+        if compliance_date is None:
+            self.compliance_date_obj = self.inventory_date_obj
+        elif isinstance(compliance_date, MRGDate):
+            self.compliance_date_obj = compliance_date
+        elif isinstance(compliance_date, date):
+            self.compliance_date_obj = MRGDate.from_datetime(compliance_date)
+        else:
+            # String - try to parse using MRGDate
+            self.compliance_date_obj = MRGDate.from_pandas(compliance_date)
         
-        logger.info(f"Data stamp date set to: {self.data_stamp_date}")
+        # Store as strings in YYYY-MM-DD format for SQL queries
+        self.inventory_date = self.inventory_date_obj.to_string('%Y-%m-%d')
+        self.compliance_date = self.compliance_date_obj.to_string('%Y-%m-%d')
+        
+        logger.info(f"Inventory date set to: {self.inventory_date}")
+        logger.info(f"Compliance date set to: {self.compliance_date}")
     
     def extract_data(self) -> pd.DataFrame:
         """
@@ -75,11 +95,12 @@ class CUSORAMReport(BaseReport):
         
         try:
             # Define placeholders for query replacement
+            # (0=0) -> inventory date (DateStamp condition)
+            # (10=10) -> compliance date (compliance date value)
             placeholders = {
                 "[DBName].[DBSchema]": "[DMAV_MAVRICK].[MAV2]",
-                "(0=0)": f"M.DateStamp = '{self.data_stamp_date}'",
-                "(10=10)": f"'{self.data_stamp_date}'",
-                
+                "(0=0)": f"M.DateStamp = '{self.inventory_date}'",
+                "(10=10)": f"'{self.compliance_date}'",
             }
             
             df_raw = self.db.run_query_from_file(query_file, placeholders=placeholders)
