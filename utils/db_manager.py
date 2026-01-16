@@ -84,18 +84,73 @@ class DBManager:
             logger.error(f"Failed to connect to database: {e}")
             raise
     
-    def run_query_from_string(self, query: str, params: Optional[Dict] = None) -> pd.DataFrame:
+    def _replace_placeholders(self, query: str, placeholders: Optional[Dict[str, str]] = None) -> str:
+        """
+        Replace custom placeholders in SQL query (e.g., (0=0), (1=1)).
+        
+        Args:
+            query: SQL query string with placeholders
+            placeholders: Dictionary mapping placeholder patterns to replacement strings
+                         Example: {"(0=0)": "(status = 'active')", "(1=1)": "(deleted = 0)"}
+        
+        Returns:
+            Query string with placeholders replaced
+        """
+        if not placeholders:
+            return query
+        
+        result_query = query
+        for placeholder, replacement in placeholders.items():
+            # Replace all occurrences of the placeholder
+            result_query = result_query.replace(placeholder, replacement)
+            logger.debug(f"Replaced placeholder '{placeholder}' with '{replacement}'")
+        
+        return result_query
+    
+    def run_query_from_string(self, query: str, params: Optional[Dict] = None,
+                              placeholders: Optional[Dict[str, str]] = None) -> pd.DataFrame:
         """
         Execute a SQL query from a string and return results as DataFrame.
         
         Args:
             query: SQL query string
             params: Optional parameters for parameterized queries (dict)
-            
+                   These are used for SQLAlchemy parameterized queries (e.g., :param_name)
+            placeholders: Optional custom placeholders to replace (e.g., {"(0=0)": "(status = 'active')"})
+                        These are simple string replacements before query execution
+        
         Returns:
             pandas DataFrame with query results
+            
+        Examples:
+            # Using parameterized queries (SQLAlchemy style)
+            query = "SELECT * FROM table WHERE id = :id AND date >= :start_date"
+            df = db.run_query_from_string(query, params={"id": 123, "start_date": "2024-01-01"})
+            
+            # Using custom placeholders (string replacement)
+            query = "SELECT * FROM table WHERE (0=0) AND (1=1)"
+            df = db.run_query_from_string(
+                query, 
+                placeholders={
+                    "(0=0)": "(status = 'active')",
+                    "(1=1)": "(deleted = 0)"
+                }
+            )
+            
+            # Using both
+            query = "SELECT * FROM table WHERE (0=0) AND id = :id"
+            df = db.run_query_from_string(
+                query,
+                params={"id": 123},
+                placeholders={"(0=0)": "(status = 'active')"}
+            )
         """
         try:
+            # First, replace custom placeholders
+            if placeholders:
+                query = self._replace_placeholders(query, placeholders)
+            
+            # Then execute with parameterized query if params provided
             if params:
                 # Use parameterized query
                 df = pd.read_sql(text(query), self.engine, params=params)
@@ -110,16 +165,30 @@ class DBManager:
             logger.error(f"Query: {query[:200]}...")  # Log first 200 chars
             raise
     
-    def run_query_from_file(self, file_path: Union[str, Path], params: Optional[Dict] = None) -> pd.DataFrame:
+    def run_query_from_file(self, file_path: Union[str, Path], params: Optional[Dict] = None,
+                           placeholders: Optional[Dict[str, str]] = None) -> pd.DataFrame:
         """
         Execute a SQL query from a file and return results as DataFrame.
         
         Args:
             file_path: Path to SQL file (str or Path)
             params: Optional parameters for parameterized queries (dict)
-            
+                   These are used for SQLAlchemy parameterized queries (e.g., :param_name)
+            placeholders: Optional custom placeholders to replace (e.g., {"(0=0)": "(status = 'active')"})
+                        These are simple string replacements before query execution
+        
         Returns:
             pandas DataFrame with query results
+            
+        Examples:
+            # Using custom placeholders
+            df = db.run_query_from_file(
+                "queries/my_query.sql",
+                placeholders={
+                    "(0=0)": "(status = 'active')",
+                    "(1=1)": "(deleted = 0)"
+                }
+            )
         """
         sql_file = Path(file_path)
         
@@ -133,7 +202,7 @@ class DBManager:
             query = sql_file.read_text(encoding='utf-8')
             
             logger.info(f"Reading query from file: {sql_file}")
-            return self.run_query_from_string(query, params)
+            return self.run_query_from_string(query, params, placeholders)
         
         except Exception as e:
             logger.error(f"Failed to execute query from file {sql_file}: {e}")

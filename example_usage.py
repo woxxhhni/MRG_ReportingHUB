@@ -4,7 +4,7 @@ Example usage of DBManager for MAVRICK DB
 
 from pathlib import Path
 import pandas as pd
-from db_manager import DBManager, create_mavrick_db_manager
+from utils import DBManager, create_mavrick_db_manager
 
 # ============================================================================
 # Example 1: Create DB manager using factory function with default settings
@@ -91,6 +91,43 @@ df_param = db.run_query_from_string(
     params={"limit_rows": 5, "start_date": "2024-01-01"}
 )
 print(f"Retrieved {len(df_param)} rows with parameters\n")
+
+# Example 6b: Custom placeholders (e.g., (0=0), (1=1))
+print("=" * 60)
+print("Example 6b: Query with custom placeholders")
+print("=" * 60)
+
+query_with_placeholders = """
+    SELECT * FROM your_table
+    WHERE (0=0) AND (1=1)
+"""
+
+# Replace placeholders with actual conditions
+df_placeholder = db.run_query_from_string(
+    query_with_placeholders,
+    placeholders={
+        "(0=0)": "(status = 'active')",  # Replace (0=0) with actual condition
+        "(1=1)": "(deleted = 0)"         # Replace (1=1) with actual condition
+    }
+)
+print(f"Retrieved {len(df_placeholder)} rows with placeholders\n")
+
+# Example 6c: Using both parameterized queries and placeholders
+print("=" * 60)
+print("Example 6c: Combining placeholders and parameters")
+print("=" * 60)
+
+query_combined = """
+    SELECT * FROM your_table
+    WHERE (0=0) AND id = :id AND date >= :start_date
+"""
+
+df_combined = db.run_query_from_string(
+    query_combined,
+    params={"id": 123, "start_date": "2024-01-01"},
+    placeholders={"(0=0)": "(status = 'active')"}
+)
+print(f"Retrieved {len(df_combined)} rows with both placeholders and parameters\n")
 
 # ============================================================================
 # Example 7: Insert DataFrame into database table

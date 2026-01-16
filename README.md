@@ -16,7 +16,7 @@ MRG Reporting HUB is a centralized analytics platform for Market Risk, Model Ris
 ### Quick Start
 
 ```python
-from db_manager import create_mavrick_db_manager
+from utils import create_mavrick_db_manager
 
 # Connect to MAVRICK DB
 db = create_mavrick_db_manager()
@@ -32,7 +32,7 @@ df = db.run_query_from_file(Path("queries/uiu_missing_data.sql"))
 df.to_csv("interim_data/result.csv", index=False)
 
 # Save to Excel using Excel Manager
-from excel_manager import ExcelManager
+from utils import ExcelManager
 
 excel_mgr = ExcelManager()
 excel_mgr.save_dataframe(df, "output_data/report.xlsx", sheet_name="Data")

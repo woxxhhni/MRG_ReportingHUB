@@ -24,7 +24,7 @@ MAVRICK_DB_CONFIG = {
 # }
 
 # Usage example:
-# from db_manager import DBManager
+# from utils import DBManager
 # from config import MAVRICK_DB_CONFIG
 # 
 # db = DBManager(**MAVRICK_DB_CONFIG)

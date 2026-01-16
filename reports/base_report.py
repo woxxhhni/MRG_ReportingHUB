@@ -7,10 +7,10 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 from abc import ABC, abstractmethod
+from typing import Optional, List, Dict, Union
 import logging
 
-from db_manager import create_mavrick_db_manager
-from excel_manager import ExcelManager
+from utils import create_mavrick_db_manager, ExcelManager
 
 logger = logging.getLogger(__name__)
 
@@ -54,27 +54,58 @@ class BaseReport(ABC):
             raise
     
     @abstractmethod
-    def extract_data(self) -> pd.DataFrame:
+    def extract_data(self) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
         """
         Extract data from database.
         Must be implemented by subclasses.
         
         Returns:
-            Raw DataFrame from database
+            Raw DataFrame from database, OR
+            Dictionary of DataFrames keyed by data source name (for multiple queries)
+            
+        Examples:
+            # Single query
+            def extract_data(self) -> pd.DataFrame:
+                return self.db.run_query_from_file("queries/single_query.sql")
+            
+            # Multiple queries
+            def extract_data(self) -> Dict[str, pd.DataFrame]:
+                return {
+                    "models": self.db.run_query_from_file("queries/models.sql"),
+                    "owners": self.db.run_query_from_file("queries/owners.sql"),
+                    "metrics": self.db.run_query_from_file("queries/metrics.sql")
+                }
         """
         pass
     
     @abstractmethod
-    def transform_data(self, df_raw: pd.DataFrame) -> pd.DataFrame:
+    def transform_data(self, df_raw: Union[pd.DataFrame, Dict[str, pd.DataFrame]]) -> Union[pd.DataFrame, Dict[str, pd.DataFrame]]:
         """
         Transform and clean data.
         Must be implemented by subclasses.
         
         Args:
-            df_raw: Raw DataFrame from database
+            df_raw: Raw DataFrame from database, OR
+                   Dictionary of DataFrames (if multiple queries were used)
             
         Returns:
-            Cleaned and transformed DataFrame
+            Cleaned and transformed DataFrame, OR
+            Dictionary of cleaned DataFrames (maintaining same keys as input)
+            
+        Examples:
+            # Single DataFrame
+            def transform_data(self, df_raw: pd.DataFrame) -> pd.DataFrame:
+                df = df_raw.copy()
+                # ... transformation logic ...
+                return df
+            
+            # Multiple DataFrames
+            def transform_data(self, df_raw: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
+                return {
+                    "models": self._transform_models(df_raw["models"]),
+                    "owners": self._transform_owners(df_raw["owners"]),
+                    "metrics": self._transform_metrics(df_raw["metrics"])
+                }
         """
         pass
     
@@ -143,9 +174,28 @@ class BaseReport(ABC):
         logger.info(f"Report generated: {excel_path}")
         return excel_path
     
+    def _is_multi_query(self, data: Union[pd.DataFrame, Dict]) -> bool:
+        """Check if data is from multiple queries (dict) or single query (DataFrame)."""
+        return isinstance(data, dict)
+    
+    def _save_interim_data_multi(self, data_dict: Dict[str, pd.DataFrame], filename_prefix: str = None):
+        """Save multiple DataFrames as interim data."""
+        prefix = filename_prefix or self.report_name.lower().replace(" ", "_")
+        timestamp = datetime.now().strftime("%Y%m%d")
+        
+        for key, df in data_dict.items():
+            csv_path = self.interim_dir / f"{prefix}_{key}_{timestamp}.csv"
+            parquet_path = self.interim_dir / f"{prefix}_{key}_{timestamp}.parquet"
+            
+            df.to_csv(csv_path, index=False)
+            df.to_parquet(parquet_path, index=False)
+            
+            logger.info(f"Interim data saved: {csv_path}, {parquet_path}")
+    
     def run(self) -> Path:
         """
         Execute the complete report workflow.
+        Supports both single and multiple queries.
         
         Returns:
             Path to generated Excel report
@@ -158,16 +208,26 @@ class BaseReport(ABC):
             # Step 1: Connect to database
             self.connect_db()
             
-            # Step 2: Extract data
+            # Step 2: Extract data (can be single DataFrame or dict of DataFrames)
             df_raw = self.extract_data()
+            is_multi = self._is_multi_query(df_raw)
+            
+            if is_multi:
+                logger.info(f"Extracted data from {len(df_raw)} queries")
+            else:
+                logger.info(f"Extracted {len(df_raw)} rows from database")
             
             # Step 3: Transform data
             df_clean = self.transform_data(df_raw)
             
             # Step 4: Save interim data
-            self.save_interim_data(df_clean)
+            if self._is_multi_query(df_clean):
+                self._save_interim_data_multi(df_clean)
+            else:
+                self.save_interim_data(df_clean)
             
             # Step 5: Calculate aggregations
+            # Note: calculate_aggregations should handle both single and multi-query cases
             aggregated_data = self.calculate_aggregations(df_clean)
             
             # Step 6: Generate report

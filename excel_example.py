@@ -4,7 +4,7 @@ Example usage of ExcelManager
 
 import pandas as pd
 from pathlib import Path
-from excel_manager import ExcelManager
+from utils import ExcelManager
 
 # Initialize Excel Manager
 excel_mgr = ExcelManager(output_dir="output_data")
@@ -151,7 +151,7 @@ print("Example 6: Integration with DB Manager")
 print("=" * 60)
 
 # This shows how you might use Excel Manager with DB Manager
-# from db_manager import create_mavrick_db_manager
+# from utils import create_mavrick_db_manager
 # 
 # db = create_mavrick_db_manager()
 # df_from_db = db.run_query_from_string("SELECT * FROM MAV2.UIUMissingData")
