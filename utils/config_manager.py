@@ -29,19 +29,25 @@ def _config_to_canonical_format(config: Dict[str, Any]) -> Dict[str, Any]:
     """
     Return config with canonical key order and default values matching default JSON.
     Ensures saved config from UI has the same format as default config files.
+    When tab_queries is non-empty, query is set to null so the file reflects that
+    only tab_queries is used (avoids a redundant/misleading single-query path).
     """
     out = {}
+    tab_queries = config.get("tab_queries") if isinstance(config.get("tab_queries"), dict) else {}
     for key in CONFIG_KEY_ORDER:
         if key in config:
             val = config[key]
         elif key == "report_description":
             val = config.get("report_description") or ""
         elif key == "tab_queries":
-            val = config.get("tab_queries") if isinstance(config.get("tab_queries"), dict) else {}
+            val = tab_queries
         elif key == "sheet_filters":
             val = config.get("sheet_filters") if isinstance(config.get("sheet_filters"), dict) else {}
         else:
             val = config.get(key)
+        # When using tab_queries, don't persist a redundant query path
+        if key == "query" and tab_queries:
+            val = None
         out[key] = val
     return out
 

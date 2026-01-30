@@ -3,7 +3,7 @@
   "inventory_date": "2025-12-31",
   "compliance_date": "2025-12-31",
   "excel_template_path": "templates/cuso_ram_report_template.xlsx",
-  "query": "queries/Risk Appetite Measure (RAM) Models_New.sql",
+  "query": null,
   "tab_queries": {
     "Issues": "queries/Risk Appetite Measure.sql",
     "MDO_MBO_Rollup": "queries/uiu_missing_data.sql",
