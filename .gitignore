@@ -48,6 +48,10 @@ interim_data/**/*.pkl
 !interim_data/.gitkeep
 !interim_data/**/.gitkeep
 
+# Excel lock files (created when workbook is open)
+~$*.xlsx
+~$*.xls
+
 # OS
 .DS_Store
 Thumbs.db

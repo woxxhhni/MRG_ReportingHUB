@@ -1,0 +1,71 @@
+{
+  "report_name": "CUSO RAM Report",
+  "inventory_date": "2025-12-31",
+  "compliance_date": "2025-12-31",
+  "excel_template_path": "templates/cuso_ram_report_template.xlsx",
+  "query": "queries/Risk Appetite Measure (RAM) Models_New.sql",
+  "tab_queries": {
+    "Issues": "queries/Risk Appetite Measure.sql",
+    "MDO_MBO_Rollup": "queries/uiu_missing_data.sql",
+    "Model": "queries/Risk Appetite Measure.sql"
+  },
+  "sheet_filters": {
+    "Model": {
+      "ModelOwner": {
+        "operator": "contains",
+        "value": [
+          "Risk",
+          "moooo",
+          "dfadfasdf"
+        ],
+        "enabled": true
+      },
+      "ModelType": {
+        "operator": "equals",
+        "value": "Credit Risk",
+        "enabled": true
+      },
+      "DateStamp": {
+        "operator": "between",
+        "value": [
+          "2026-01-01",
+          "2026-12-31"
+        ],
+        "enabled": true
+      },
+      "ValidationDate": {
+        "operator": "equals",
+        "value": "",
+        "enabled": true
+      }
+    },
+    "Issues": {
+      "IssueType": {
+        "operator": "in_list",
+        "value": [
+          "Validation",
+          "Documentation",
+          "tettttttt"
+        ],
+        "enabled": true
+      },
+      "DueDate": {
+        "operator": "less_equal",
+        "value": "2026-12-31",
+        "enabled": true
+      }
+    },
+    "MDO_MBO_Rollup": {
+      "AverageScore": {
+        "operator": "less_than",
+        "value": "80",
+        "enabled": true
+      },
+      "LastUpdated": {
+        "operator": "is_not_null",
+        "value": "",
+        "enabled": true
+      }
+    }
+  }
+}

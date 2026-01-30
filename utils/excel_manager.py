@@ -188,7 +188,68 @@ class ExcelManager:
         except Exception as e:
             logger.error(f"Failed to save multiple DataFrames to Excel: {e}")
             raise
-    
+
+    def save_dataframes_to_template(
+        self,
+        template_path: Union[str, Path],
+        dataframes: Dict[str, pd.DataFrame],
+        output_path: Union[str, Path],
+        index: bool = False,
+        format_header: bool = True,
+        auto_adjust_width: bool = True,
+    ) -> Path:
+        """
+        Load an Excel template and write DataFrames to named sheets.
+        Sheets are created if they do not exist; existing sheet content is overwritten from row 1.
+
+        Args:
+            template_path: Path to the Excel template file
+            dataframes: Dict mapping sheet name to DataFrame
+            output_path: Path for the output Excel file
+            index: Whether to include DataFrame index (default: False)
+            format_header: Whether to format header row (default: True)
+            auto_adjust_width: Whether to auto-adjust column widths (default: True)
+
+        Returns:
+            Path to the saved output file
+        """
+        template_path = Path(template_path)
+        output_path = Path(output_path)
+        if not template_path.exists():
+            raise FileNotFoundError(f"Template file not found: {template_path}")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        if output_path.suffix.lower() != ".xlsx":
+            output_path = output_path.with_suffix(".xlsx")
+
+        try:
+            wb = load_workbook(template_path)
+            for sheet_name, df in dataframes.items():
+                if df.empty:
+                    logger.warning(f"DataFrame for sheet '{sheet_name}' is empty, skipping")
+                    continue
+                if sheet_name in wb.sheetnames:
+                    ws = wb[sheet_name]
+                else:
+                    ws = wb.create_sheet(title=sheet_name)
+                # Clear existing content (from row 1) and write DataFrame
+                for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
+                    for cell in row:
+                        cell.value = None
+                for r_idx, row in enumerate(dataframe_to_rows(df, index=index, header=True), 1):
+                    for c_idx, value in enumerate(row, 1):
+                        ws.cell(row=r_idx, column=c_idx, value=value)
+                if format_header:
+                    self._format_header_row(ws, 1, 0, len(df.columns))
+                if auto_adjust_width:
+                    self._auto_adjust_column_widths(ws, 0, len(df.columns))
+                logger.info(f"Wrote sheet '{sheet_name}' with {len(df)} rows")
+            wb.save(output_path)
+            logger.info(f"Saved report to template output: {output_path}")
+            return output_path
+        except Exception as e:
+            logger.error(f"Failed to save DataFrames to template: {e}")
+            raise
+
     def append_dataframe(self, df: pd.DataFrame, file_path: Union[str, Path],
                         sheet_name: str = "Sheet1", index: bool = False,
                         start_cell: Optional[str] = None,

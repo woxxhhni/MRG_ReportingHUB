@@ -1,0 +1,28 @@
+{
+  "report_name": "Compliance Report",
+  "report_description": "",
+  "inventory_date": "2025-12-31",
+  "compliance_date": "2025-12-31",
+  "excel_template_path": "templates/compliance_report_template.xlsx",
+  "query": null,
+  "tab_queries": {
+    "Model": "queries/Risk Appetite Measure.sql",
+    "Issues": "queries/uiu_missing_data.sql",
+    "test_col3": "queries/Risk Appetite Measure.sql"
+  },
+  "sheet_filters": {
+    "Model": {
+      "ModelID": {
+        "operator": "contains",
+        "value": [
+          "ewrwe",
+          "wer",
+          "wer"
+        ],
+        "enabled": true
+      }
+    },
+    "Issues": {},
+    "test_col3": {}
+  }
+}

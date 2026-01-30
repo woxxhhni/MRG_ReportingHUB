@@ -22,16 +22,18 @@ COMPLIANCE_DATE = None  # Set to None to use command line argument or default (s
 #   (first argument: inventory_date, second argument: compliance_date)
 # ============================================================================
 
-if __name__ == "__main__":
+
+def main():
+    """Entry point for CUSO RAM report (script or console_script)."""
     print("=" * 60)
     print("CUSO RAM Report - Risk Appetite Measure")
     print("=" * 60)
     print()
-    
+
     # Priority: 1. Script configuration, 2. Command line argument, 3. Default (today)
     inventory_date = None
     compliance_date = None
-    
+
     if INVENTORY_DATE is not None:
         inventory_date = INVENTORY_DATE
         print(f"Using inventory date from script configuration: {inventory_date}")
@@ -40,7 +42,7 @@ if __name__ == "__main__":
         print(f"Using inventory date from command line: {inventory_date}")
     else:
         print("Using default inventory date (today)")
-    
+
     if COMPLIANCE_DATE is not None:
         compliance_date = COMPLIANCE_DATE
         print(f"Using compliance date from script configuration: {compliance_date}")
@@ -48,23 +50,25 @@ if __name__ == "__main__":
         compliance_date = sys.argv[2]
         print(f"Using compliance date from command line: {compliance_date}")
     elif inventory_date is not None:
-        # If compliance date not specified, use same as inventory date
         compliance_date = inventory_date
         print(f"Using compliance date (same as inventory date): {compliance_date}")
     else:
         print("Using default compliance date (today)")
     print()
-    
+
     try:
         report = CUSORAMReport(inventory_date=inventory_date, compliance_date=compliance_date)
         report_path = report.run()
-        
         print()
         print("=" * 60)
         print("Report generated successfully!")
         print(f"Location: {report_path}")
         print("=" * 60)
-    
+        return report_path
     except Exception as e:
         print(f"\nError: {e}")
         raise
+
+
+if __name__ == "__main__":
+    main()

@@ -13,6 +13,25 @@ from .date_utils import (
     date_range,
     business_days_between
 )
+from .config_manager import (
+    ReportConfigManager,
+    get_config_manager,
+    get_canonical_config,
+    load_report_config,
+    load_report_config_with_fallback,
+    save_report_config,
+    load_default_config,
+    save_default_config,
+    save_temp_config,
+    load_temp_config,
+    list_temp_configs,
+    cleanup_temp_configs,
+    get_default_report_config
+)
+from .filter_utils import (
+    apply_filter_to_dataframe,
+    apply_sheet_filters
+)
 
 __all__ = [
     "DBManager",
@@ -24,4 +43,19 @@ __all__ = [
     "convert_dataframe_dates",
     "date_range",
     "business_days_between",
+    "ReportConfigManager",
+    "get_config_manager",
+    "load_report_config",
+    "load_report_config_with_fallback",
+    "save_report_config",
+    "load_default_config",
+    "save_default_config",
+    "save_temp_config",
+    "load_temp_config",
+    "list_temp_configs",
+    "cleanup_temp_configs",
+    "get_default_report_config",
+    "get_canonical_config",
+    "apply_filter_to_dataframe",
+    "apply_sheet_filters",
 ]

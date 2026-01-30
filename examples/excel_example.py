@@ -1,6 +1,14 @@
 """
-Example usage of ExcelManager
+Example usage of ExcelManager.
+Run from project root: python examples/excel_example.py
 """
+
+import sys
+from pathlib import Path
+
+_root = Path(__file__).resolve().parent.parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 import pandas as pd
 from pathlib import Path
@@ -152,10 +160,10 @@ print("=" * 60)
 
 # This shows how you might use Excel Manager with DB Manager
 # from utils import create_mavrick_db_manager
-# 
+#
 # db = create_mavrick_db_manager()
 # df_from_db = db.run_query_from_string("SELECT * FROM MAV2.UIUMissingData")
-# 
+#
 # # Save query result to Excel
 # excel_mgr.save_dataframe(
 #     df=df_from_db,

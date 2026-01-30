@@ -1,9 +1,17 @@
 """
-Example usage of DBManager for MAVRICK DB
+Example usage of DBManager for MAVRICK DB.
+Run from project root: python examples/example_usage.py
 """
 
+import sys
 from pathlib import Path
+
+_root = Path(__file__).resolve().parent.parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
 import pandas as pd
+from pathlib import Path
 from utils import DBManager, create_mavrick_db_manager
 
 # ============================================================================

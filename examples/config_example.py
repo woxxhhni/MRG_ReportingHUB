@@ -1,6 +1,6 @@
 """
-Configuration example for MAVRICK DB connection
-You can copy this file to config.py and update with your actual credentials
+Configuration example for MAVRICK DB connection.
+Copy this file to config.py (at project root) and update with your actual credentials.
 """
 
 # MAVRICK DB Connection Configuration
@@ -26,5 +26,5 @@ MAVRICK_DB_CONFIG = {
 # Usage example:
 # from utils import DBManager
 # from config import MAVRICK_DB_CONFIG
-# 
+#
 # db = DBManager(**MAVRICK_DB_CONFIG)

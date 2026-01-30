@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mrg-reporting-hub"
+version = "0.1.0"
+description = "Centralized analytics platform for Model Governance team reporting (Excel and future Tableau)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Proprietary" }
+authors = []
+keywords = ["reporting", "excel", "analytics", "model-governance"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "sqlalchemy>=2.0.0",
+    "pyodbc>=4.0.39",
+    "openpyxl>=3.1.0",
+    "pyarrow>=12.0.0",
+    "python-dateutil>=2.8.2",
+    "streamlit>=1.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+]
+
+[project.scripts]
+run-report = "run_report:main"
+run-cuso-ram-report = "run_cuso_ram_report:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["utils*", "reports*"]
+namespaces = false
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311"]
+include = '\.pyi?$'
+exclude = '''
+/(\.git|__pycache__|venv|env|\.venv)
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v"

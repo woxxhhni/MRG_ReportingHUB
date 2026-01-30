@@ -1,0 +1,52 @@
+{
+  "report_name": "Consolidate Report",
+  "report_description": "",
+  "inventory_date": "2025-12-31",
+  "compliance_date": "2025-12-31",
+  "excel_template_path": null,
+  "query": null,
+  "tab_queries": {},
+  "sheet_filters": {
+    "Model": {
+      "ModelName": {
+        "operator": "starts_with",
+        "value": "CUSO",
+        "enabled": true
+      },
+      "Status": {
+        "operator": "equals",
+        "value": "Active",
+        "enabled": true
+      },
+      "ValidationDate": {
+        "operator": "greater_equal",
+        "value": "2026-01-01",
+        "enabled": false
+      }
+    },
+    "Issues": {
+      "AssignedTo": {
+        "operator": "is_not_null",
+        "value": "",
+        "enabled": true
+      },
+      "ResolutionDate": {
+        "operator": "is_null",
+        "value": "",
+        "enabled": true
+      }
+    },
+    "MDO_MBO_Rollup": {
+      "ModelCount": {
+        "operator": "greater_than",
+        "value": "10",
+        "enabled": true
+      },
+      "Owner": {
+        "operator": "contains",
+        "value": "Governance",
+        "enabled": false
+      }
+    }
+  }
+}

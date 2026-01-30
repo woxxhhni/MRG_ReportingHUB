@@ -1,0 +1,62 @@
+{
+  "report_name": "KPI Report",
+  "report_description": "",
+  "inventory_date": "2025-12-31",
+  "compliance_date": "2025-12-31",
+  "excel_template_path": null,
+  "query": null,
+  "tab_queries": {},
+  "sheet_filters": {
+    "Model": {
+      "ModelID": {
+        "operator": "in_list",
+        "value": ["MODEL_001", "MODEL_002", "MODEL_003"],
+        "enabled": false
+      },
+      "RiskLevel": {
+        "operator": "in_list",
+        "value": ["Medium", "High"],
+        "enabled": true
+      },
+      "DateStamp": {
+        "operator": "between",
+        "value": ["2026-06-01", "2026-12-31"],
+        "enabled": true
+      }
+    },
+    "Issues": {
+      "IssueID": {
+        "operator": "starts_with",
+        "value": "ISS",
+        "enabled": true
+      },
+      "Severity": {
+        "operator": "not_in_list",
+        "value": ["Low", "Informational"],
+        "enabled": true
+      },
+      "DueDate": {
+        "operator": "less_than",
+        "value": "2027-01-01",
+        "enabled": true
+      }
+    },
+    "MDO_MBO_Rollup": {
+      "RollupName": {
+        "operator": "ends_with",
+        "value": "Q4",
+        "enabled": true
+      },
+      "TotalRisk": {
+        "operator": "between",
+        "value": ["30", "70"],
+        "enabled": true
+      },
+      "AverageScore": {
+        "operator": "greater_equal",
+        "value": "75",
+        "enabled": false
+      }
+    }
+  }
+}

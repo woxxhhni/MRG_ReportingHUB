@@ -1,0 +1,52 @@
+{
+  "report_name": "CUSO RAM Report",
+  "report_description": "",
+  "inventory_date": "2025-12-31",
+  "compliance_date": "2025-12-31",
+  "excel_template_path": null,
+  "query": "queries/Risk Appetite Measure (RAM) Models_New.sql",
+  "tab_queries": {},
+  "sheet_filters": {
+    "Model": {
+      "ModelOwner": {
+        "operator": "contains",
+        "value": "Risk",
+        "enabled": true
+      },
+      "ModelType": {
+        "operator": "equals",
+        "value": "Credit Risk",
+        "enabled": false
+      },
+      "DateStamp": {
+        "operator": "between",
+        "value": ["2026-01-01", "2026-12-31"],
+        "enabled": true
+      }
+    },
+    "Issues": {
+      "IssueType": {
+        "operator": "in_list",
+        "value": ["Validation", "Documentation"],
+        "enabled": true
+      },
+      "DueDate": {
+        "operator": "less_equal",
+        "value": "2026-12-31",
+        "enabled": true
+      }
+    },
+    "MDO_MBO_Rollup": {
+      "AverageScore": {
+        "operator": "less_than",
+        "value": "80",
+        "enabled": true
+      },
+      "LastUpdated": {
+        "operator": "is_not_null",
+        "value": "",
+        "enabled": true
+      }
+    }
+  }
+}

@@ -1,10 +1,18 @@
 """
-Example usage of MRGDate
+Example usage of MRGDate and date utilities.
+Run from project root: python examples/date_example.py
 """
+
+import sys
+from pathlib import Path
+
+_root = Path(__file__).resolve().parent.parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
 
 import pandas as pd
 import datetime
-from date_utils import MRGDate, convert_dataframe_dates, date_range, business_days_between
+from utils import MRGDate, convert_dataframe_dates, date_range, business_days_between
 
 # Example 1: Create date from various sources
 print("=" * 60)
